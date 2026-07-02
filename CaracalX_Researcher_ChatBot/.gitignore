@@ -1,0 +1,27 @@
+# ========================
+# Environment & Secrets
+# ========================
+.env
+
+# ========================
+# Database & User Memory
+# ========================
+chatbot.db
+mcp_servers/**/expenses.json
+
+# ========================
+# Personal IDE Settings
+# ========================
+.vscode/
+
+# ========================
+# Python Cache
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ========================
+# Test Files & Uploads
+# ========================
+*.pdf

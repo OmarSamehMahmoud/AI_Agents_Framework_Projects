@@ -1,0 +1,32 @@
+# Web Framework & Async Utilities
+streamlit
+nest-asyncio
+
+# LangChain & LangGraph Ecosystem
+langgraph
+langchain
+langchain-core
+langchain-community
+langchain-text-splitters
+langchain-groq
+langchain-huggingface
+langchain-mcp-adapters
+
+# Vector Database & Embeddings
+faiss-cpu
+sentence-transformers
+
+# Document Processing
+pypdf
+
+# Database & State Management
+psycopg-pool
+psycopg[binary]
+
+# Agent Tools & Search
+tavily-python
+requests
+
+# Environment Variables & Data Validation
+python-dotenv
+pydantic
