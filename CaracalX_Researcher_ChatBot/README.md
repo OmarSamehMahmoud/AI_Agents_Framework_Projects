@@ -83,15 +83,64 @@ Launch the Streamlit interface:
 
 Navigate to `http://localhost:8501` in your browser to start hunting.
 
+---
+
+## 🛠️ Native Tools (4 Tools)
+
+CaracalX includes **4 built-in tools** for core functionality:
+
+* **calculator** — Evaluate mathematical expressions safely using a restricted set of math functions.
+* **get_stock_price** — Fetch real-time stock market data and ticker information via AlphaVantage API.
+* **web_search** — Perform deep web research using Tavily API and return synthesized results from top sources.
+* **rag_tool** — Retrieve relevant information from uploaded PDF documents using thread-specific FAISS vector store.
+
+---
+
+## 🔌 MCP Tools (20 Tools)
+
+CaracalX integrates **20 specialized tools** via the Model Context Protocol (MCP), organized into two dedicated servers:
+
+### 📊 Expense Tracker Server
+* **add_expense** — Add a new expense with amount, category, and description.
+* **list_expenses** — Return all recorded expenses.
+* **total_expenses** — Calculate the total sum of all expenses.
+* **category_summary** — Show spending breakdown by category.
+* **delete_expense** — Delete an expense by its index.
+
+### 🧮 Advanced Math Server (Powered by SymPy)
+**Algebra & Calculus:**
+* **evaluate** — Evaluate a mathematical expression (e.g., `2 + 3*4`).
+* **simplify_expression** — Simplify algebraic expressions.
+* **factor_expression** — Factor algebraic expressions (e.g., `x² - 9`).
+* **expand_expression** — Expand algebraic expressions (e.g., `(x+2)*(x+3)`).
+* **solve_equation** — Solve equations for a given variable.
+* **derivative** — Compute the derivative of an expression.
+* **integral** — Compute the indefinite integral of an expression.
+
+**Linear Algebra:**
+* **matrix_multiply** — Multiply two matrices.
+* **matrix_determinant** — Calculate the determinant of a matrix.
+
+**Statistics:**
+* **mean** — Calculate the arithmetic mean.
+* **median** — Calculate the median.
+* **standard_deviation** — Calculate the standard deviation.
+
+**Number Theory:**
+* **prime_factors** — Return the prime factorization of a number.
+* **gcd** — Calculate the greatest common divisor.
+* **lcm** — Calculate the least common multiple.
+
+**Total: 24 Tools (4 Native + 20 MCP)**
+---
+
 ### 6. ScreenShots
-<img width="947" height="433" alt="image" src="https://github.com/user-attachments/assets/05cb2459-985b-49db-bcd1-1cc7d82097fb" />
-<img width="949" height="409" alt="image" src="https://github.com/user-attachments/assets/6d66d752-6331-4081-b118-49fcfdc0bcb9" />
-<img width="941" height="421" alt="image" src="https://github.com/user-attachments/assets/a6351f50-2191-4f91-b9bd-2798bd02faa9" />
-<img width="944" height="413" alt="image" src="https://github.com/user-attachments/assets/68553707-0bab-4ddd-a963-5711957bd066" />
-<img width="953" height="410" alt="image" src="https://github.com/user-attachments/assets/437aafe2-9a73-4344-a11e-5d34040038be" />
-<img width="949" height="404" alt="image" src="https://github.com/user-attachments/assets/2bfb1d3b-f745-4f96-9a5b-06fc92f8f1dd" />
-
-
+<img width="954" height="440" alt="image" src="https://github.com/user-attachments/assets/dc859e24-4b70-44ae-9166-85916d874b56" />
+<img width="950" height="439" alt="image" src="https://github.com/user-attachments/assets/3bd28f72-39df-4897-9239-10c8a4434097" />
+<img width="950" height="431" alt="image" src="https://github.com/user-attachments/assets/b0a6f133-7495-442e-8e6f-4a63ddec1138" />
+<img width="950" height="423" alt="image" src="https://github.com/user-attachments/assets/8ef88ec2-e367-485c-ba46-f6fd8b3c49cf" />
+<img width="948" height="434" alt="image" src="https://github.com/user-attachments/assets/bef68249-8254-4e0a-8e86-621cd24d24f6" />
+<img width="950" height="437" alt="image" src="https://github.com/user-attachments/assets/1dada73f-550e-4b65-bdb9-2d3cab5cf393" />
 
 ---
 
