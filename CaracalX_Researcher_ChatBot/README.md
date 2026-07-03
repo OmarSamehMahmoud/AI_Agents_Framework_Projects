@@ -52,8 +52,13 @@ CaracalX Researcher is an advanced, locally-hosted AI research assistant featuri
 
 ### 1. Clone and Install Dependencies
 
-    git clone <your-repo-url>
-    cd CaracalX_Researcher
+    mkdir CaracalX_Researcher_ChatBot
+    cd CaracalX_Researcher_ChatBot
+    git init
+    git remote add -f origin https://github.com/OmarSamehMahmoud/AI_Agents_Framework_Projects.git
+    git config core.sparseCheckout true
+    echo "CaracalX_Researcher_ChatBot/" >> .git/info/sparse-checkout
+    git pull origin master
     pip install -r requirements.txt
 
 ### 2. Configure Ollama
