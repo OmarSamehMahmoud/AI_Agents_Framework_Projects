@@ -64,3 +64,4 @@ sql_agent/
 ## ScreenShots
 
 <img width="956" height="440" alt="image" src="https://github.com/user-attachments/assets/33177864-d8b2-442b-a77e-84bb07b88b33" />
+<img width="955" height="439" alt="image" src="https://github.com/user-attachments/assets/73d4d161-4764-4576-83fd-9620a1fae19e" />
