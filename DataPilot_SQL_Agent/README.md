@@ -60,3 +60,7 @@ sql_agent/
 - What is the average salary by department?
 - Which projects are in progress?
 - Show employees assigned to the Mobile App Rewrite project
+
+## ScreenShots
+
+<img width="956" height="440" alt="image" src="https://github.com/user-attachments/assets/33177864-d8b2-442b-a77e-84bb07b88b33" />
