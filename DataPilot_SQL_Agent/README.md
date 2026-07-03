@@ -9,7 +9,7 @@ No API calls after setup. Everything runs on your machine.
 # 1. Install dependencies
 pip install -r requirements.txt
 
-# 2. Download Gemma 4 into ./gemma4_model/  (one-time, ~9 GB)
+# 2. Download Qwen3.5-0.8B into ./qwen_model/  (one-time, ~1.6 GB)
 export HF_TOKEN=hf_your_token_here
 python download_model.py
 
@@ -29,7 +29,7 @@ sql_agent/
 │   └── index.html       ← Chat UI (pure HTML/CSS/JS)
 ├── requirements.txt
 ├── company.db           ← Auto-created on first run
-└── gemma4_model/        ← Created by download_model.py (~9 GB)
+└── qwen_model/          ← Created by download_model.py (~1.6 GB)
     ├── config.json
     ├── tokenizer.json
     └── model-*.safetensors
@@ -37,17 +37,19 @@ sql_agent/
 
 ## Hardware requirements
 
-| Setup        | Minimum RAM | Notes                              |
-|--------------|-------------|-------------------------------------|
-| GPU (CUDA)   | 10 GB VRAM  | bfloat16; fast inference            |
-| CPU only     | 20 GB RAM   | Slow (~30–120 s per query)          |
-| Apple M-chip | 16 GB RAM   | MPS backend; decent speed           |
+| Setup | Minimum RAM | Notes |
+|-------|-------------|-------|
+| GPU (CUDA) | 4 GB VRAM | fp16; very fast inference |
+| CPU only | 8 GB RAM | Moderate speed (~2–10 s per query) |
+| Apple M-chip | 8 GB unified | MPS backend; good speed |
+
+**Note:** Qwen3.5-0.8B is a lightweight model (~1.6 GB), so it runs smoothly on most modern machines without requiring high-end hardware.
 
 ## How to get a free HF token
 
 1. Sign up at https://huggingface.co
 2. Settings → Access Tokens → New token (Read)
-3. Visit https://huggingface.co/google/gemma-4-e4b-it → Request access
+3. Visit https://huggingface.co/Qwen/Qwen3.5-0.8B → Request access
 4. `export HF_TOKEN=hf_...`
 
 ## Example questions
