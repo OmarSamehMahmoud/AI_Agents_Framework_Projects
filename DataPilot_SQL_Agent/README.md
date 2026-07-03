@@ -1,6 +1,6 @@
-# SQL Agent — Gemma 4 E4B (Local)
+# SQL Agent — Qwen3.5:0.8b (Local)
 
-Natural language → SQL, powered by a **locally downloaded** Gemma 4 model.
+Natural language → SQL, powered by a **locally downloaded** Qwen3.5:0.8b model.
 No API calls after setup. Everything runs on your machine.
 
 ## Quick start
