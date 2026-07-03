@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DataPilot — Intelligent Database Assistant</title>
+  <style>
+    /* ── Reset & tokens ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0e1117;
+      --surface:   #161b22;
+      --surface2:  #1e2630;
+      --surface3:  #252d38;
+      --border:    #2a3441;
+      --border2:   #364152;
+      --accent:    #4ade80;
+      --accent2:   #22c55e;
+      --accentbg:  rgba(74,222,128,.08);
+      --blue:      #60a5fa;
+      --bluebg:    rgba(96,165,250,.08);
+      --amber:     #fbbf24;
+      --amberbg:   rgba(251,191,36,.08);
+      --red:       #f87171;
+      --redbg:     rgba(248,113,113,.08);
+      --text:      #e2e8f0;
+      --text2:     #94a3b8;
+      --text3:     #64748b;
+      --radius:    10px;
+      --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+    }
+
+    [data-theme="light"] {
+      --bg:        #f8fafc;
+      --surface:   #ffffff;
+      --surface2:  #f1f5f9;
+      --surface3:  #e2e8f0;
+      --border:    #cbd5e1;
+      --border2:   #94a3b8;
+      --accent:    #16a34a;
+      --accent2:   #15803d;
+      --accentbg:  rgba(22,163,74,.08);
+      --blue:      #2563eb;
+      --bluebg:    rgba(37,99,235,.08);
+      --amber:     #d97706;
+      --amberbg:   rgba(217,119,6,.08);
+      --red:       #dc2626;
+      --redbg:     rgba(220,38,38,.08);
+      --text:      #1e293b;
+      --text2:     #475569;
+      --text3:     #64748b;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background .3s, color .3s;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      height: 56px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      z-index: 10;
+      transition: background .3s, border-color .3s;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--blue));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    .logo-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .logo-badge {
+      font-size: 11px;
+      color: var(--accent);
+      background: var(--accentbg);
+      border: 1px solid rgba(74,222,128,.2);
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .theme-toggle {
+      width: 36px; height: 36px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all .2s;
+      color: var(--text);
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface3);
+      border-color: var(--accent);
+    }
+
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .4; }
+    }
+
+    .status-label { font-size: 12px; color: var(--text2); }
+
+    /* ── Layout ── */
+    .layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 260px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+      transition: background .3s, border-color .3s;
+    }
+
+    .sidebar-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text3);
+    }
+
+    .sidebar-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+
+    .sidebar-body::-webkit-scrollbar { width: 4px; }
+    .sidebar-body::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+    .table-group { margin-bottom: 4px; }
+
+    .table-name {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--blue);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .table-name:hover { background: var(--surface2); }
+
+    .table-icon { font-size: 13px; }
+
+    .chevron {
+      margin-left: auto;
+      transition: transform .2s;
+      color: var(--text3);
+      font-size: 10px;
+    }
+
+    .table-group.open .chevron { transform: rotate(90deg); }
+
+    .columns-list {
+      display: none;
+      padding: 0 0 6px 28px;
+    }
+
+    .table-group.open .columns-list { display: block; }
+
+    .col-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 16px 3px 0;
+      font-size: 11px;
+      color: var(--text2);
+    }
+
+    .col-name { font-family: var(--font-mono); }
+
+    .col-type {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--text3);
+      background: var(--surface2);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .pk-badge {
+      font-size: 9px;
+      color: var(--amber);
+      background: var(--amberbg);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    /* ── Suggested queries ── */
+    .suggested-section {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+      overflow-y: auto;
+      max-height: 320px;
+    }
+
+    .suggested-title {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text3);
+      margin-bottom: 8px;
+      margin-top: 12px;
+    }
+
+    .suggested-title:first-child {
+      margin-top: 0;
+    }
+
+    .suggestion-chip {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-size: 11px;
+      color: var(--text2);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+      line-height: 1.4;
+    }
+
+    .suggestion-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── Chat area ── */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .messages::-webkit-scrollbar { width: 5px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 5px; }
+
+    /* ── Welcome screen ── */
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 100%;
+      gap: 16px;
+      color: var(--text2);
+    }
+
+    .welcome-icon {
+      font-size: 48px;
+      filter: grayscale(.3);
+    }
+
+    .welcome h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .welcome p {
+      font-size: 14px;
+      max-width: 380px;
+      line-height: 1.6;
+    }
+
+    /* ── Message bubbles ── */
+    .message { display: flex; flex-direction: column; gap: 6px; max-width: 800px; }
+    .message.user { align-self: flex-end; align-items: flex-end; }
+    .message.bot  { align-self: flex-start; align-items: flex-start; }
+
+    .msg-meta {
+      font-size: 11px;
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .msg-author { font-weight: 600; }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.65;
+      max-width: 680px;
+    }
+
+    .message.user .bubble {
+      background: var(--accentbg);
+      border: 1px solid rgba(74,222,128,.2);
+      color: var(--text);
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.bot .bubble {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+
+    .message.error .bubble {
+      background: var(--redbg);
+      border: 1px solid rgba(248,113,113,.25);
+      color: var(--red);
+    }
+
+    /* ── SQL code block inside bubble ── */
+    .sql-block {
+      margin-top: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .sql-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: var(--surface3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sql-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--amber);
+    }
+
+    .copy-btn {
+      font-size: 10px;
+      color: var(--text3);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: color .15s;
+    }
+
+    .copy-btn:hover { color: var(--text); }
+
+    .sql-code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--blue);
+      padding: 10px 12px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* ── Results table ── */
+    .result-table-wrap {
+      margin-top: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .result-table-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--surface3);
+      border-bottom: 1px solid var(--border);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--accent);
+    }
+
+    .result-count {
+      margin-left: auto;
+      color: var(--text3);
+      font-weight: 400;
+    }
+
+    .result-table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th {
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3);
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text2);
+      font-family: var(--font-mono);
+      white-space: nowrap;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+
+    /* ── Thinking / loading ── */
+    .thinking {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      border-bottom-left-radius: 4px;
+      font-size: 13px;
+      color: var(--text2);
+    }
+
+    .dots span {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin: 0 2px;
+      animation: bounce 1.2s infinite;
+    }
+
+    .dots span:nth-child(2) { animation-delay: .2s; }
+    .dots span:nth-child(3) { animation-delay: .4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: .4; }
+      40%           { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* ── Input area ── */
+    .input-area {
+      padding: 12px 20px 8px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      transition: background .3s, border-color .3s;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 10px 10px 10px 16px;
+      transition: border-color .2s;
+    }
+
+    .input-row:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(74,222,128,.1);
+    }
+
+    #user-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 14px;
+      resize: none;
+      max-height: 120px;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+
+    #user-input::placeholder { color: var(--text3); }
+
+    #send-btn {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s, transform .1s;
+      color: #0e1117;
+      font-size: 15px;
+    }
+
+    #send-btn:hover  { background: var(--accent2); }
+    #send-btn:active { transform: scale(.95); }
+    #send-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .input-hint {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 8px 20px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 11px;
+      color: var(--text3);
+      flex-shrink: 0;
+      transition: background .3s, border-color .3s;
+    }
+
+    .footer-powered {
+      margin-bottom: 2px;
+    }
+
+    .footer-copyright {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    /* ── Raw SQL tab ── */
+    .tab-bar {
+      display: flex;
+      gap: 2px;
+      padding: 0 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .tab {
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text3);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color .15s;
+      user-select: none;
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab:hover:not(.active) { color: var(--text2); }
+
+    .tab-panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+    .tab-panel.active { display: flex; }
+
+    /* ── SQL editor panel ── */
+    .sql-editor-panel {
+      display: flex;
+      flex-direction: column;
+      padding: 16px 20px;
+      gap: 12px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    #sql-editor {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      color: var(--blue);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      padding: 12px 16px;
+      resize: none;
+      outline: none;
+      height: 120px;
+      transition: border-color .2s;
+    }
+
+    #sql-editor:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(96,165,250,.1);
+    }
+
+    .run-btn {
+      align-self: flex-start;
+      background: var(--bluebg);
+      border: 1px solid rgba(96,165,250,.3);
+      color: var(--blue);
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .run-btn:hover { background: rgba(96,165,250,.16); }
+
+    #sql-result { flex: 1; overflow-y: auto; }
+
+    /* ── Scrollbars ── */
+    *::-webkit-scrollbar       { width: 5px; height: 5px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 5px; }
+  </style>
+</head>
+<body data-theme="dark">
+
+<!-- ──────────── HEADER ──────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🗄️</div>
+    <span class="logo-text">DataPilot</span>
+    <span class="logo-badge">Qwen 3.5 0.8B</span>
+  </div>
+  <div class="header-right">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    <div class="status-dot"></div>
+    <span class="status-label">Connected to SQLite</span>
+  </div>
+</header>
+
+<!-- ──────────── LAYOUT ──────────── -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Database Schema</div>
+    </div>
+    <div class="sidebar-body" id="schema-container">
+      <div style="padding:16px;font-size:12px;color:var(--text3)">Loading schema…</div>
+    </div>
+    <div class="suggested-section">
+      <div class="suggested-title">📖 Read Data</div>
+      <button class="suggestion-chip" onclick="sendSuggestion('Show all employees')">Show all employees</button>
+      <button class="suggestion-chip" onclick="sendSuggestion('Show all active projects and their budgets')">Active projects & budgets</button>
+      <button class="suggestion-chip" onclick="sendSuggestion('Who has the highest salary?')">Who has the highest salary?</button>
+      
+      <div class="suggested-title">➕ Create New</div>
+      <button class="suggestion-chip" onclick="sendSuggestion('Add a new employee named John Doe in IT department with salary 75000 and email john@company.com')">Add new employee</button>
+      <button class="suggestion-chip" onclick="sendSuggestion('Create a new project called AI Platform with budget 500000 in Engineering')">Create new project</button>
+      
+      <div class="suggested-title">✏️ Edit/Update</div>
+		<button class="suggestion-chip" onclick="sendSuggestion('Update Alice Johnson salary to 100000')">Update employee salary</button>
+		<button class="suggestion-chip" onclick="sendSuggestion('Change Bob Smith role to Senior Developer')">Update employee role</button>
+		<button class="suggestion-chip" onclick="sendSuggestion('Update Alice Johnson name to Alice Smith')">Update employee name</button>
+		<button class="suggestion-chip" onclick="sendSuggestion('Change Alice email to alice.smith@company.com')">Update employee email</button>
+		<button class="suggestion-chip" onclick="sendSuggestion('Move Alice Johnson to Marketing department')">Update employee department</button>
+		<button class="suggestion-chip" onclick="sendSuggestion('Update Alice Johnson hire date to 2020-01-15')">Update employee hire date</button>
+		<button class="suggestion-chip" onclick="sendSuggestion('Update Mobile App Rewrite project title to Mobile App 2.0')">Update project title</button>
+		<button class="suggestion-chip" onclick="sendSuggestion('Change ERP Migration project to Marketing department')">Update project department</button>
+		<button class="suggestion-chip" onclick="sendSuggestion('Update Brand Refresh project status to completed')">Update project status</button>
+		<button class="suggestion-chip" onclick="sendSuggestion('Update ERP Migration project budget to 400000')">Update project budget</button>
+		<button class="suggestion-chip" onclick="sendSuggestion('Change Alice role in Mobile App Rewrite to Senior Developer')">Update assignment role</button>
+			  
+      <div class="suggested-title">🗑️ Delete</div>
+      <button class="suggestion-chip" onclick="sendSuggestion('Delete the project Brand Refresh')">Delete a project</button>
+      <button class="suggestion-chip" onclick="sendSuggestion('Remove Karen Moore from employees')">Delete an employee</button>
+      
+      <div class="suggested-title">📊 Database Overview</div>
+      <button class="suggestion-chip" onclick="viewFullDatabase()" style="background:var(--bluebg);border-color:rgba(96,165,250,.3);color:var(--blue);">📊 View Full Database</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CHAT AREA -->
+  <div class="chat-area">
+
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+      <div class="tab active" data-tab="chat" onclick="switchTab('chat')">💬 Chat</div>
+      <div class="tab" data-tab="sql" onclick="switchTab('sql')">⚡ Raw SQL</div>
+    </div>
+
+    <!-- CHAT TAB -->
+    <div class="tab-panel active" id="tab-chat" style="flex-direction:column">
+      <div class="messages" id="messages">
+        <div class="welcome" id="welcome">
+          <div class="welcome-icon">🤖</div>
+          <h2>Ask your database anything</h2>
+          <p>Powered by CaracalX. Type a question in plain English and get instant SQL-backed answers.</p>
+        </div>
+      </div>
+      <div class="input-area">
+        <div class="input-row">
+          <textarea
+            id="user-input"
+            rows="1"
+            placeholder="Ask, create, edit, or delete... (e.g., Update Alice salary to 100000)"
+            onkeydown="handleKey(event)"
+            oninput="autoResize(this)"
+          ></textarea>
+          <button id="send-btn" onclick="sendMessage()" title="Send">➤</button>
+        </div>
+        <div class="input-hint">💡 Click suggestions to edit · Enter to send · Shift+Enter for new line</div>
+      </div>
+    </div>
+
+    <!-- RAW SQL TAB -->
+    <div class="tab-panel" id="tab-sql">
+      <div class="sql-editor-panel">
+        <textarea id="sql-editor" spellcheck="false" placeholder="SELECT * FROM employees WHERE salary > 80000;">SELECT name, role, salary FROM employees ORDER BY salary DESC LIMIT 5;</textarea>
+        <button class="run-btn" onclick="runSQL()">▶ Run Query</button>
+        <div id="sql-result"></div>
+      </div>
+    </div>
+
+  </div><!-- /chat-area -->
+</div><!-- /layout -->
+
+<!-- ──────────── FOOTER ──────────── -->
+<div class="footer">
+  <div class="footer-powered">Powered by <strong style="color:var(--accent);">CaracalX</strong></div>
+  <div class="footer-copyright">ALL COPYRIGHTS RESERVED © 2026</div>
+</div>
+
+<script>
+// ── State ──
+let isLoading = false;
+
+// ── Theme Management ──
+function toggleTheme() {
+  const body = document.body;
+  const currentTheme = body.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  
+  body.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  
+  const toggleBtn = document.querySelector('.theme-toggle');
+  toggleBtn.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+}
+
+// Load theme from localStorage on page load
+function loadTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  document.body.setAttribute('data-theme', savedTheme);
+  const toggleBtn = document.querySelector('.theme-toggle');
+  toggleBtn.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+}
+
+// ── Tab switching ──
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+}
+
+// ── Schema loader ──
+async function loadSchema() {
+  try {
+    const res = await fetch('/api/schema');
+    const schema = await res.json();
+    const container = document.getElementById('schema-container');
+    container.innerHTML = '';
+
+    const icons = { employees: '👤', departments: '🏢', projects: '📋', project_assignments: '🔗' };
+    for (const [table, cols] of Object.entries(schema)) {
+      const group = document.createElement('div');
+      group.className = 'table-group';
+      group.innerHTML = `
+        <div class="table-name" onclick="this.parentElement.classList.toggle('open')">
+          <span class="table-icon">${icons[table] || '📄'}</span>
+          <span>${table}</span>
+          <span class="chevron">▶</span>
+        </div>
+        <div class="columns-list">
+          ${cols.map(c => `
+            <div class="col-row">
+              ${c.pk ? '<span class="pk-badge">PK</span>' : ''}
+              <span class="col-name">${c.name}</span>
+              <span class="col-type">${c.type}</span>
+            </div>`).join('')}
+        </div>`;
+      container.appendChild(group);
+    }
+    // Open first table by default
+    container.querySelector('.table-group')?.classList.add('open');
+  } catch (e) {
+    document.getElementById('schema-container').innerHTML =
+      '<div style="padding:12px;font-size:12px;color:var(--red)">Failed to load schema</div>';
+  }
+}
+
+// ── Message helpers ──
+function buildResultTable(columns, rows) {
+  if (!columns || !rows || !rows.length) return '';
+  const hdr = columns.map(c => `<th>${escapeHtml(c)}</th>`).join('');
+  const body = rows.map(row =>
+    `<tr>${columns.map(c => `<td>${escapeHtml(String(row[c] ?? ''))}</td>`).join('')}</tr>`
+  ).join('');
+  return `<div class="result-table-wrap">
+    <div class="result-table-header">Query results
+      <span class="result-count">${rows.length} row${rows.length !== 1 ? 's' : ''}</span>
+    </div>
+    <div class="result-table-scroll"><table>
+      <thead><tr>${hdr}</tr></thead><tbody>${body}</tbody>
+    </table></div></div>`;
+}
+
+function appendMessage(role, text, sqlUsed, columns, rows, operationType, affectedRows) {
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+
+  const wrap = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'message ' + role;
+
+  const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const author = role === 'user' ? 'You' : role === 'error' ? 'Error' : 'DataPilot';
+
+  let inner = `
+    <div class="msg-meta">
+      <span class="msg-author">${author}</span>
+      <span>${now}</span>
+    </div>
+    <div class="bubble">${escapeHtml(text)}`;
+
+  if (sqlUsed) {
+    const operationLabel = operationType === 'modify' ? 'SQL Executed' : 'SQL Generated';
+    inner += `
+      <div class="sql-block">
+        <div class="sql-block-header">
+          <span class="sql-label">${operationLabel}</span>
+          <button class="copy-btn" onclick="copyText(this, \`${sqlUsed.replace(/`/g,'\\`')}\`)">Copy</button>
+        </div>
+        <pre class="sql-code">${escapeHtml(sqlUsed)}</pre>
+      </div>`;
+  }
+
+  if (operationType === 'modify' && affectedRows !== undefined) {
+    inner += `
+      <div style="margin-top:12px;padding:10px 14px;background:var(--accentbg);border:1px solid rgba(74,222,128,.2);border-radius:8px;font-size:13px;color:var(--accent);">
+        ✅ Successfully affected ${affectedRows} row${affectedRows !== 1 ? 's' : ''}
+      </div>`;
+  }
+
+  if (columns && rows && rows.length) {
+    inner += buildResultTable(columns, rows);
+  }
+
+  inner += `</div>`;
+  div.innerHTML = inner;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return div;
+}
+
+function showThinking() {
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+
+  const wrap = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'message bot';
+  div.id = 'thinking-msg';
+  div.innerHTML = `
+    <div class="msg-meta"><span class="msg-author">DataPilot</span></div>
+    <div class="thinking">
+      <div class="dots"><span></span><span></span><span></span></div>
+      Generating SQL with Qwen 3.5…
+    </div>`;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function removeThinking() {
+  document.getElementById('thinking-msg')?.remove();
+}
+
+// ── Send message ──
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+
+  // Check for dangerous operations
+  const lowerText = text.toLowerCase();
+  if (lowerText.includes('delete') || lowerText.includes('drop') || lowerText.includes('truncate')) {
+    const confirmed = confirm(`⚠️ Warning: This operation might delete data.\n\nYour request: "${text}"\n\nAre you sure you want to proceed?`);
+    if (!confirmed) {
+      input.value = '';
+      return;
+    }
+  }
+
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  appendMessage('user', text);
+  showThinking();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await res.json();
+    removeThinking();
+
+    if (data.error) {
+      appendMessage('error', data.error);
+    } else {
+      appendMessage('bot', data.answer, data.sql, data.columns, data.rows, data.operation_type, data.affected_rows);
+    }
+  } catch (e) {
+    removeThinking();
+    appendMessage('error', 'Network error: ' + e.message);
+  } finally {
+    isLoading = false;
+    document.getElementById('send-btn').disabled = false;
+    input.focus();
+  }
+}
+
+// ── Raw SQL runner ──
+async function runSQL() {
+  const sql = document.getElementById('sql-editor').value.trim();
+  if (!sql) return;
+
+  const resultDiv = document.getElementById('sql-result');
+  resultDiv.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text3)">Running…</div>';
+
+  try {
+    const res = await fetch('/api/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sql })
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      resultDiv.innerHTML = `<div style="padding:12px;font-size:12px;color:var(--red);background:var(--redbg);border:1px solid rgba(248,113,113,.2);border-radius:8px;">${escapeHtml(data.error)}</div>`;
+      return;
+    }
+
+    if (data.type === 'modify') {
+      resultDiv.innerHTML = `
+        <div style="padding:12px;font-size:13px;color:var(--accent);background:var(--accentbg);border:1px solid rgba(74,222,128,.2);border-radius:8px;">
+          ✅ ${data.operation} operation successful. Affected ${data.affected} row${data.affected !== 1 ? 's' : ''}.
+        </div>`;
+      return;
+    }
+
+    if (!data.rows.length) {
+      resultDiv.innerHTML = `<div style="padding:12px;font-size:12px;color:var(--text3)">No rows returned.</div>`;
+      return;
+    }
+
+    resultDiv.innerHTML = `
+      <div class="result-table-wrap">
+        <div class="result-table-header">
+          Results
+          <span class="result-count">${data.rows.length} row${data.rows.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="result-table-scroll">
+          <table>
+            <thead><tr>${data.columns.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>
+            <tbody>
+              ${data.rows.map(row =>
+                `<tr>${data.columns.map(c => `<td>${escapeHtml(String(row[c] ?? ''))}</td>`).join('')}</tr>`
+              ).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  } catch (e) {
+    resultDiv.innerHTML = `<div style="padding:12px;font-size:12px;color:var(--red)">Error: ${e.message}</div>`;
+  }
+}
+
+// ── View Full Database ──
+async function viewFullDatabase() {
+  if (isLoading) return;
+  
+  isLoading = true;
+  appendMessage('user', 'Show me the complete database');
+  showThinking();
+
+  try {
+    const res = await fetch('/api/dump');
+    const data = await res.json();
+    removeThinking();
+
+    if (data.error) {
+      appendMessage('error', data.error);
+    } else {
+      appendDatabaseDump(data);
+    }
+  } catch (e) {
+    removeThinking();
+    appendMessage('error', 'Network error: ' + e.message);
+  } finally {
+    isLoading = false;
+  }
+}
+
+function appendDatabaseDump(dump) {
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+
+  const wrap = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'message bot';
+
+  const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+  let inner = `
+    <div class="msg-meta">
+      <span class="msg-author">DataPilot</span>
+      <span>${now}</span>
+    </div>
+    <div class="bubble">
+      <div style="margin-bottom:12px;font-weight:600;color:var(--accent);">📊 Complete Database Overview</div>`;
+
+  for (const [table, info] of Object.entries(dump)) {
+    inner += `
+      <div style="margin-top:16px;">
+        <div style="font-size:14px;font-weight:600;color:var(--blue);margin-bottom:8px;">
+          📋 ${table} <span style="font-size:11px;color:var(--text3);font-weight:400;">(${info.total_rows} rows total, showing up to 50)</span>
+        </div>`;
+    
+    if (info.sample_data.length > 0) {
+      inner += buildResultTable(
+        info.columns,
+        info.sample_data
+      );
+    } else {
+      inner += `<div style="padding:8px 12px;background:var(--surface2);border-radius:6px;font-size:12px;color:var(--text3);">Empty table</div>`;
+    }
+    
+    inner += `</div>`;
+  }
+
+  inner += `</div>`;
+  div.innerHTML = inner;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+// ── Utilities ──
+function sendSuggestion(text) {
+  const input = document.getElementById('user-input');
+  input.value = text;
+  switchTab('chat');
+  
+  input.focus();
+  autoResize(input);
+  input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+async function copyText(btn, text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  } catch {}
+}
+
+// ── Model status banner ──
+async function checkModelStatus() {
+  try {
+    const res = await fetch('/api/status');
+    const data = await res.json();
+    if (!data.model_ready) {
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:var(--amberbg);border:1px solid rgba(251,191,36,.3);color:var(--amber);font-size:13px;padding:10px 20px;text-align:center;flex-shrink:0;';
+      banner.innerHTML = '⚠️  Model not downloaded yet. Run <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;">python download_model.py</code> then restart the server.';
+      document.querySelector('.chat-area').prepend(banner);
+      document.getElementById('send-btn').disabled = true;
+      document.getElementById('user-input').placeholder = 'Run python download_model.py first…';
+    }
+  } catch {}
+}
+
+// ── Init ──
+loadTheme();
+loadSchema();
+checkModelStatus();
+document.getElementById('user-input').focus();
+</script>
+</body>
+</html>

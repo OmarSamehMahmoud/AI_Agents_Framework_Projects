@@ -1,0 +1,13 @@
+# Web server
+flask==3.0.3
+flask-cors==4.0.1
+
+# Local model (Qwen 3.5)
+transformers>=4.47.0
+torch>=2.2.0
+accelerate>=0.30.0
+huggingface-hub>=0.24.0
+sentencepiece>=0.2.0
+
+# Database
+sqlalchemy==2.0.36
